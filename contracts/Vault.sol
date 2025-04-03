@@ -11,14 +11,41 @@ contract Vault {
         owner = msg.sender;
     }
 
-    function deposit(uint256 _sentValue, uint256 _timestamp) public {
-        require(_sentValue > 0, "Must send some ether");
-
-        sentValue = _sentValue;
-        timestamp = _timestamp;
+    function deposit() public payable {
+        require(msg.value > 0, "Must send some ether.");
+        sentValue = msg.value;
+        timestamp = block.timestamp;
     }
 
-    function getCaller(address _owner) public pure returns (address) {
-        return _owner;
+    function getCaller() public view returns (address) {
+        return msg.sender;
+    }
+
+    function getOrigin() public view returns (address) {
+        return tx.origin;
+    }
+
+    function getBlockDetails()
+        public
+        view
+        returns (uint256, uint256, uint256, address)
+    {
+        return (block.number, block.prevrandao, block.gaslimit, block.coinbase);
+    }
+
+    function trackGasUsage() public {
+        uint256 initialGas = gasleft();
+        uint256 result = 0;
+
+        for (uint i = 0; i < 100; i++) {
+            result += i;
+        }
+
+        uint finalGas = gasleft();
+        gasUsed = initialGas - finalGas;
+    }
+
+    function generateHash(string memory data) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(data));
     }
 }
